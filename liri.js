@@ -4,7 +4,7 @@ const moment = require("moment");
 const SpotifyAPI = require("node-spotify-api");
 const keys = require("./keys.js");
 const userInputArray = process.argv;
-const fs = require("fs")
+const fs = require("fs");
 
 
 const spotify = new SpotifyAPI(keys.spotify)
@@ -27,7 +27,6 @@ const spotifyThis = (songName) => {
 const movieThis = (movieName) => {
     const queryURL = `http://www.omdbapi.com/?apikey=${keys.omdb.key}&t=${movieName}&type=movie`
     axios.get(queryURL).then(response => {
-        console.log(response.data)
         const movie = response.data
         console.log(`Movie Title: ${movie.Title}`);
         console.log(`Year Released: ${movie.Year}`);
@@ -43,6 +42,19 @@ const movieThis = (movieName) => {
         })
 }
 
+const concertThis = (bandName) => {
+    const queryURL = (`https://rest.bandsintown.com/artists/${bandName}/events?app_id=${keys.bands.id}`)
+    axios.get(queryURL).then(response => {
+        response.data.map(event => {
+            console.log(`----------------------------------------------`)
+            console.log(`Venue name: ${event.venue.name}`)
+            console.log(`Show location: ${event.venue.city}, ${event.venue.country}`)
+            console.log(`Date of event ${moment(event.datetime).format(`MM/DD/YYYY`)}`)
+        })
+
+    })
+}
+
 
 
 switch (userInputArray[2]) {
@@ -56,19 +68,29 @@ switch (userInputArray[2]) {
         movieThis(movieQuery)
         break;
 
+    case "concert-this":
+        concertThis(userInputArray[3])
+        break;
+
     case "do-what-it-says":
         fs.readFile("./random.txt", "utf8", (err, data) => {
             if (err) {
                 throw (err)
             }
             const contentArray = data.split(",")
-            switch(contentArray[0]){
+            switch (contentArray[0]) {
                 case "spotify-this-song":
                     spotifyThis(contentArray[1])
                     break;
                 case "movie-this":
                     movieThis(contentArray[1])
                     break;
+                case "concert-this":
+                    console.log(contentArray[1].replace(/"/g,""))
+                    concertThis(contentArray[1].replace(/"/g,""))
+                    break;
+
             }
         })
-};
+
+    };
