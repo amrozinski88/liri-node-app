@@ -15,10 +15,12 @@ const spotifyThis = (songName) => {
         limit: 1
     }).then(response => {
         const track = response.tracks.items[0];
+        console.log(`----------------------------------------------`)
         console.log(`Artist: ${track.album.artists[0].name}`);
         console.log(`Song name is: ${track.name}`);
         console.log(`Here is a link to a preview ${track.external_urls.spotify}`);
         console.log(`Album name is: ${track.album.name}`);
+        console.log(`----------------------------------------------`)
     }).catch(err => {
         console.log(error)
     });
@@ -28,6 +30,7 @@ const movieThis = (movieName) => {
     const queryURL = `http://www.omdbapi.com/?apikey=${keys.omdb.key}&t=${movieName}&type=movie`
     axios.get(queryURL).then(response => {
         const movie = response.data
+        console.log(`----------------------------------------------`)
         console.log(`Movie Title: ${movie.Title}`);
         console.log(`Year Released: ${movie.Year}`);
         console.log(`IMDB Rating: ${movie.imdbRating}`);
@@ -36,6 +39,7 @@ const movieThis = (movieName) => {
         console.log(`Language: ${movie.Language}`);
         console.log(`Plot: ${movie.Plot}`);
         console.log(`Cast: ${movie.Actors}`);
+        console.log(`----------------------------------------------`)
     })
         .catch(error => {
             console.log(error)
@@ -45,14 +49,22 @@ const movieThis = (movieName) => {
 const concertThis = (bandName) => {
     const queryURL = (`https://rest.bandsintown.com/artists/${bandName}/events?app_id=${keys.bands.id}`)
     axios.get(queryURL).then(response => {
+        if(response.data.length) {
         response.data.map(event => {
             console.log(`----------------------------------------------`)
             console.log(`Venue name: ${event.venue.name}`)
             console.log(`Show location: ${event.venue.city}, ${event.venue.country}`)
             console.log(`Date of event ${moment(event.datetime).format(`MM/DD/YYYY`)}`)
         })
+    }
+        else{
+            console.log(`No results found please try another artist`)
+        }
 
-    })
+    }).catch(error => console.log(error.response.data.errorMessage)
+        
+    )
+
 }
 
 
@@ -86,8 +98,7 @@ switch (userInputArray[2]) {
                     movieThis(contentArray[1])
                     break;
                 case "concert-this":
-                    console.log(contentArray[1].replace(/"/g,""))
-                    concertThis(contentArray[1].replace(/"/g,""))
+                    concertThis(contentArray[1].replace(/"/g,"").toLowerCase())
                     break;
 
             }
